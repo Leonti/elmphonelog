@@ -92,6 +92,10 @@ all_flag = false;
 count = 0;
 longs = {};
 
+dynamic DBus.Object dbus_pim_sources;
+dbus_pim_sources = dbus.get_object ("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Sources", "org.freesmartphone.PIM.Sources");
+dbus_pim_sources.InitAllEntries();
+
         rc = Database.open ("/var/db/phonelog.db", out db);
 
         if (rc != Sqlite.OK) {
@@ -515,16 +519,16 @@ longs = {};
 
     switch(calls_type){
 case 0:
-statement = "select * from calls where direction=0 AND activeTime IS NOT NULL  ORDER BY startTime DESC";
+statement = "select id, number, direction, datetime(startTime, 'localtime'), activeTime, datetime(releaseTime, 'localtime'), duration  from calls where direction=0 AND activeTime IS NOT NULL  ORDER BY startTime DESC";
 break;
 case 1:
-statement = "select * from calls where direction=1 AND activeTime IS NOT NULL  ORDER BY startTime DESC";
+statement = "select id, number, direction, datetime(startTime, 'localtime'), activeTime, datetime(releaseTime, 'localtime'), duration from calls where direction=1 ORDER BY startTime DESC";
 break;
 case 2:
-statement = "select * from missed_calls where direction = 0  ORDER BY startTime DESC";
+statement = "select id, number, direction, datetime(startTime, 'localtime') from missed_calls where direction = 0  ORDER BY startTime DESC";
 break;
 case 3:
-statement = "select * from calls  ORDER BY startTime DESC";
+statement = "select id, number, direction, datetime(startTime, 'localtime'), activeTime, datetime(releaseTime, 'localtime'), duration from calls  ORDER BY startTime DESC";
 break;
 }
         rc = db.exec (statement, sqlite_callback, null);
