@@ -474,7 +474,7 @@ field_entries_additional[i].entry_set(known_values[i]);
 	contact_photo = new Elm.Photo( win );
 	contact_photo.size_hint_align_set( -1.0, -1.0 );
 	contact_photo.size_hint_weight_set( 1.0, 1.0 );
-	contact_photo.size_set(180);
+	contact_photo.size_set(130);
 if(contact_info.lookup("photoimage") != null){
 contact_photo.file_set(contact_info.lookup("photoimage"));
 }

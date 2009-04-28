@@ -39,6 +39,12 @@ Elm.Button action_sms;
 Elm.Button action_1;
 Elm.Button action_2;
 
+Elm.Table buttons_table;
+Elm.Table details_table;
+Elm.Label details_dur_cap;
+Elm.Label details_dur_data;
+Elm.Label details_time_cap;
+Elm.Label details_time_data;
 
 public struct call_info
 {
@@ -314,6 +320,59 @@ debug("showing action hover");
 	action_label.scale_set( 1.4 );
 	action_label.show();
 	action_frame.content_set(action_label);
+/*
+Elm.Table details_table;
+Elm.Table buttons_table;
+Elm.Label details_dur_cap;
+Elm.Label details_dur_data;
+Elm.Label details_time_cap;
+Elm.Label details_time_data;
+*/
+details_table = new Table( action_box );
+details_table.size_hint_align_set( -1.0, -1.0 );
+details_table.size_hint_weight_set( 1.0, 1.0 );
+details_table.show();
+action_box.pack_end(details_table);
+
+	details_dur_cap = new Elm.Label( action_box );
+	details_dur_cap.label_set("Duration:");
+	details_dur_cap.scale_set( 1.4 );
+//	details_dur_cap.size_hint_weight_set( 1.0, 1.0 );
+	details_dur_cap.size_hint_align_set( -1.0, -1.0 );
+	details_dur_cap.show();
+	details_table.pack(details_dur_cap,0,0,1,1);
+
+	details_dur_data = new Elm.Label( action_box );
+	details_dur_data.label_set(call_infs[number-1].duration);
+	details_dur_data.scale_set( 1.4 );
+//	details_dur_data.size_hint_weight_set( 1.0, 1.0 );
+	details_dur_data.size_hint_align_set( -1.0, -1.0 );
+	details_dur_data.show();
+	details_table.pack(details_dur_data,1,0,1,1);
+
+	details_time_cap = new Elm.Label( action_box );
+	details_time_cap.label_set("Time:");
+	details_time_cap.scale_set( 1.4 );
+//	details_time_cap.size_hint_weight_set( 1.0, 1.0 );
+	details_time_cap.size_hint_align_set( -1.0, -1.0 );
+	details_time_cap.show();
+	details_table.pack(details_time_cap,0,1,1,1);
+
+	details_time_data = new Elm.Label( action_box );
+	details_time_data.label_set(call_infs[number-1].time);
+	details_time_data.scale_set( 1.4 );
+//	details_time_data.size_hint_weight_set( 1.0, 1.0 );
+	details_time_data.size_hint_align_set( -1.0, -1.0 );
+	details_time_data.show();
+	details_table.pack(details_time_data,1,1,1,1);
+
+
+buttons_table = new Table( action_box );
+buttons_table.size_hint_align_set( -1.0, -1.0 );
+buttons_table.size_hint_weight_set( 1.0, 1.0 );
+buttons_table.homogenous_set( true );
+buttons_table.show();
+action_box.pack_end(buttons_table);
 
 action_call = new Elm.Button ( action_box );
 action_call.label_set("Call");
@@ -321,7 +380,7 @@ action_call.smart_callback_add( "clicked", call_number );
 action_call.size_hint_weight_set( 1.0, 1.0 );
 action_call.size_hint_align_set( -1.0, -1.0 );
 action_call.show();
-action_box.pack_end ( action_call );
+buttons_table.pack(action_call, 0, 0, 1, 1 );
 
 action_sms = new Elm.Button ( action_box );
 action_sms.label_set("Send SMS");
@@ -329,49 +388,42 @@ action_sms.smart_callback_add( "clicked", send_message );
 action_sms.size_hint_weight_set( 1.0, 1.0 );
 action_sms.size_hint_align_set( -1.0, -1.0 );
 action_sms.show();
-action_box.pack_end ( action_sms );
+buttons_table.pack(action_sms, 1, 0, 1, 1 );
 
 action_1 =  new Elm.Button ( action_box );
 action_1.size_hint_weight_set( 1.0, 1.0 );
 action_1.size_hint_align_set( -1.0, -1.0 );
 action_1.show();
-action_box.pack_end ( action_1 );
+buttons_table.pack(action_1, 0, 1, 1, 1 );
+
+action_2 =  new Elm.Button ( action_box );
+action_2.size_hint_weight_set( 1.0, 1.0 );
+action_2.size_hint_align_set( -1.0, -1.0 );
+action_2.show();
+buttons_table.pack(action_2, 1, 1, 1, 1 );
+
 
 switch(number_infos[call_infs[number-1].number_id].storage_type){
 case 0:
 action_1.label_set("Save to phone");
 action_1.smart_callback_add( "clicked", save_number );
 
-action_2 =  new Elm.Button ( action_box );
 action_2.label_set("Save to sim");
 action_2.smart_callback_add( "clicked", save_number_to_sim );
-action_2.size_hint_weight_set( 1.0, 1.0 );
-action_2.size_hint_align_set( -1.0, -1.0 );
-action_2.show();
-action_box.pack_end ( action_2 );
 break;
 case 1:
 action_1.label_set("View");
 action_1.smart_callback_add( "clicked", view_number );
-action_2 =  new Elm.Button ( action_box );
+
 action_2.label_set("Edit");
 action_2.smart_callback_add( "clicked", edit_number );
-action_2.size_hint_weight_set( 1.0, 1.0 );
-action_2.size_hint_align_set( -1.0, -1.0 );
-action_2.show();
-action_box.pack_end ( action_2 );
 break;
 case 2:
 action_1.label_set("Edit");
 action_1.smart_callback_add( "clicked", edit_number_sim );
 
-action_2 =  new Elm.Button ( action_box );
 action_2.label_set("Copy to phone");
 action_2.smart_callback_add( "clicked", save_number );
-action_2.size_hint_weight_set( 1.0, 1.0 );
-action_2.size_hint_align_set( -1.0, -1.0 );
-action_2.show();
-action_box.pack_end ( action_2 );
 
 break;
 }
@@ -489,7 +541,7 @@ type = 2;
 type = 1;
 }
 
-//number_info number_i = get_name(edit.str);
+if (duration == "") duration = "N/A";
 
 call_info call_i = call_info(){number = edit.str, time = values[3], duration = duration, type = type, number_id = get_number_id(edit.str)};
 call_infs += call_i;
