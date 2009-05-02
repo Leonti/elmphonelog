@@ -76,6 +76,7 @@ ToolbarItem[] tool_items;
 DBus.Connection dbus;
 //dynamic DBus.Object dbus_sim; //SIM dbus object
 FreeSmartphone.GSM.Call dbus_call;
+Freesmartphonen.Contacts dbus_contacts;
 call_info[] call_infs;
 number_info[] number_infos;
 
@@ -92,6 +93,9 @@ dbus_sim = (FreeSmartphone.GSM.SIM) dbus.get_object<FreeSmartphone.GSM.SIM> ("or
 book = dbus_sim.retrieve_phonebook("contacts");
 
 dbus_call = (FreeSmartphone.GSM.Call) dbus.get_object<FreeSmartphone.GSM.Call> ("org.freesmartphone.ogsmd", "/org/freesmartphone/GSM/Device");
+
+dbus_contacts = (Freesmartphonen.Contacts) dbus.get_object<Freesmartphonen.Contacts> ("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Contacts");
+
 
 all_flag = false;
 
@@ -479,6 +483,19 @@ GLib.HashTable<string, string>  contact_info = new GLib.HashTable<string, string
     public void edit_number( Evas.Object obj, void* event_info){
         debug( "editing number from phone memory" );
 	action_hover.hide();
+
+GLib.HashTable<string, string>  contact_info = new GLib.HashTable<string, string>(GLib.str_hash, GLib.str_equal);
+
+Freesmartphonen.Contact dbus_contact =  (Freesmartphonen.Contact) dbus.get_object<Freesmartphonen.Contact> ("org.freesmartphone.opimd", number_infos[call_infs[current_number-1].number_id].opim_path);
+GLib.HashTable<string, GLib.Value?>  contact_content = dbus_contact.GetContent();
+GLib.List<weak string> v = contact_content.get_keys();
+foreach(string key_name in v){
+contact_info.insert(key_name, contact_content.lookup(key_name).get_string());
+}
+
+    addcontacts += new T.AddContact(dbus, contact_info);
+    addcontacts[addcontacts.length-1].saved_signal += update_contact;
+    addcontacts[addcontacts.length-1].run(obj, event_info);
     }
     public void edit_number_sim( Evas.Object obj, void* event_info){
         debug( "editing number from sim" );
@@ -646,7 +663,6 @@ return number_id;
 
 
 public void get_names(){
-Freesmartphonen.Contacts dbus_contacts = (Freesmartphonen.Contacts) dbus.get_object<Freesmartphonen.Contacts> ("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Contacts");
 
 for(int j= 0; j < db_numbers.length; ++j){
 if(db_numbers[j] != "***"){

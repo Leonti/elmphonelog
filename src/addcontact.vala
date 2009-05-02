@@ -474,9 +474,10 @@ field_entries_additional[i].entry_set(known_values[i]);
 	contact_photo = new Elm.Photo( win );
 	contact_photo.size_hint_align_set( -1.0, -1.0 );
 	contact_photo.size_hint_weight_set( 1.0, 1.0 );
-	contact_photo.size_set(130);
+	contact_photo.size_set(180);
 if(contact_info.lookup("photoimage") != null){
-contact_photo.file_set(contact_info.lookup("photoimage"));
+photo_filename = contact_info.lookup("photoimage");
+contact_photo.file_set(photo_filename);
 }
         contact_photo.show();
 	contact_photo.smart_callback_add( "clicked", addPhoto );
@@ -560,22 +561,33 @@ field_data_additional += field_entries_additional[i].entry_get();
        contact.insert( "jabber", field_data_additional[3].substring(0, (int)field_data_additional[3].length - 4));
        contact.insert( "comments", field_data_additional[4].substring(0, (int)field_data_additional[4].length - 4));
 }else{
-       contact.insert( "secondemail", "");
-       contact.insert( "webpage", "");
-       contact.insert( "sip", "");
-       contact.insert( "jabber", "");
-       contact.insert( "comments", "");
+string[] old_values = {"secondemail", "webpage", "sip","jabber","comments"};
+foreach(string s in old_values){
+if(contact_info.lookup(s) != null)  contact.insert( s, contact_info.lookup(s)); else contact.insert( s, "");
+}
 
 }
-//if(status.photo){
+if(status.photo){
        contact.insert( "photoimage", photo_filename);
-//}
+}else{
+string s = "photoimage";
+if(contact_info.lookup(s) != null)  contact.insert( s, contact_info.lookup(s)); else contact.insert( s, "");
+}
 
-//checking for presense of "path" in hashtable
-// in future - when path is present it means that contact is already exists and we are updating it instead of adding
-//for now - adding very contact
 
-string cont_path = dbus_contacts.Add(contact);
+string cont_path = "";
+
+if(contact_info.lookup("Path") != null){
+debug("Updating existing contact - opim");
+cont_path = contact_info.lookup("Path");
+debug(cont_path);
+Freesmartphonen.Contact dbus_contact =  (Freesmartphonen.Contact) dbus.get_object<Freesmartphonen.Contact> ("org.freesmartphone.opimd", cont_path);
+dbus_contact.Update(contact);
+}else{
+debug("Adding new contact - opim");
+cont_path = dbus_contacts.Add(contact);
+}
+
 saved_signal (saved_name, saved_number, 1, 0, cont_path);
 
 debug("new contact added: %s", cont_path);

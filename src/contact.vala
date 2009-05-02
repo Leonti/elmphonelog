@@ -25,6 +25,13 @@ public interface Contacts : GLib.Object {
 	public abstract string Query(GLib.HashTable<string, string> query_data)  throws DBus.Error;
 }
 
+[DBus (name = "org.freesmartphone.PIM.Contact")]
+public interface Contact : GLib.Object {
+	public abstract void Update(GLib.HashTable<string, string> contact_data);
+	public abstract void Delete();
+	public abstract GLib.HashTable<string, GLib.Value?> GetContent()  throws DBus.Error;
+}
+
 [DBus (name = "org.freesmartphone.PIM.ContactQuery")]
 public interface ContactQuery : GLib.Object {
 	public abstract GLib.HashTable<string, GLib.Value?> GetResult()  throws DBus.Error;
@@ -58,9 +65,12 @@ public FreeSmartphone.GSM.SIMEntry[] book2;
 public DBus.Connection dbus;
 public Freesmartphonen.Contacts dbus_contacts;
 
+public Freesmartphonen.Contact dbus_contact;
+
 public Contact(DBus.Connection dbus_par, string contact_p){
 dbus = dbus_par;
-dbus_contacts = (Freesmartphonen.Contacts) dbus.get_object<Freesmartphonen.Contacts> ("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Contacts");
+
+dbus_contact =  (Freesmartphonen.Contact) dbus.get_object<Freesmartphonen.Contact> ("org.freesmartphone.opimd", contact_p);
 contact_path = contact_p;
 }
 
@@ -202,19 +212,8 @@ if(actual_values != null){
 public string[]? get_values(){ //array of strings corresponding to our labels + photo_path as last one
 // {"Contact name:", "First name:", "Second name:", "Cell number:", "Home number:", "Work number:", "E-mail:", "Group:","In common","Second E-mail:","Web page:", "SIP:", "Jabber:", "Comments:"};
 string[] cont_values = {}; //order should be the same
-//cont_values += contact_n;
 
-      GLib.HashTable<string, string>  cont_query = new GLib.HashTable<string, string>(GLib.str_hash, GLib.str_equal);
-      cont_query.insert( "Path", contact_path);
-      string query_path = dbus_contacts.Query(cont_query);
-      debug(query_path); 
-
-Freesmartphonen.ContactQuery dbus_query = (Freesmartphonen.ContactQuery) dbus.get_object<Freesmartphonen.ContactQuery> ("org.freesmartphone.opimd", query_path);
-
-int results_count = dbus_query.GetResultCount();
-if(results_count != 0){
-dbus_query.Skip(results_count - 1);
-GLib.HashTable<string, GLib.Value?>  qw_result = dbus_query.GetResult();
+GLib.HashTable<string, GLib.Value?>  qw_result = dbus_contact.GetContent();
 
 Value temp_val = qw_result.lookup("name");
 contact_name = temp_val.get_string();
@@ -246,10 +245,7 @@ temp_val =  qw_result.lookup("comments");
 cont_values += temp_val.get_string();
 temp_val =  qw_result.lookup("photoimage");
 cont_values += temp_val.get_string();
-}else{
-debug("no result for this path: %s", contact_path);
-return null;
-}
+
 for(int i =0; i < cont_values.length; ++i){
 debug(cont_values[i]);
 }
