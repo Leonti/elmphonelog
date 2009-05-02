@@ -98,9 +98,9 @@ all_flag = false;
 count = 0;
 longs = {};
 
-dynamic DBus.Object dbus_pim_sources;
-dbus_pim_sources = dbus.get_object ("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Sources", "org.freesmartphone.PIM.Sources");
-dbus_pim_sources.InitAllEntries();
+//dynamic DBus.Object dbus_pim_sources;
+//dbus_pim_sources = dbus.get_object ("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Sources", "org.freesmartphone.PIM.Sources");
+//dbus_pim_sources.InitAllEntries();
 
         rc = Database.open ("/var/db/phonelog.db", out db);
 
