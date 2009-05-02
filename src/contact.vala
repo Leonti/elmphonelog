@@ -67,6 +67,10 @@ public Freesmartphonen.Contacts dbus_contacts;
 
 public Freesmartphonen.Contact dbus_contact;
 
+public GLib.HashTable<string, string> contact_info;
+public  T.AddContact addcont;
+public signal void saved_signal (string name_new, string number_new, int storage_type, int sim_id, string opim_path);
+
 public Contact(DBus.Connection dbus_par, string contact_p){
 dbus = dbus_par;
 
@@ -207,44 +211,37 @@ if(actual_values != null){
 
     public void edit_clicked(  Evas.Object obj, void* event_info) {
     close();
-    }
+ addcont = new T.AddContact(dbus, contact_info);
+ addcont.saved_signal += update_contact;
+ addcont.run(obj, event_info);
+   }
+
+public void update_contact(string name_new, string number_new, int storage_type, int sim_id, string opim_path){
+saved_signal (name_new, number_new, 1, 0, opim_path);
+}
 
 public string[]? get_values(){ //array of strings corresponding to our labels + photo_path as last one
 // {"Contact name:", "First name:", "Second name:", "Cell number:", "Home number:", "Work number:", "E-mail:", "Group:","In common","Second E-mail:","Web page:", "SIP:", "Jabber:", "Comments:"};
 string[] cont_values = {}; //order should be the same
 
-GLib.HashTable<string, GLib.Value?>  qw_result = dbus_contact.GetContent();
 
-Value temp_val = qw_result.lookup("name");
+contact_info = new GLib.HashTable<string, string>(GLib.str_hash, GLib.str_equal);
+GLib.HashTable<string, GLib.Value?>  contact_content = dbus_contact.GetContent();
+
+
+Value temp_val = contact_content.lookup("name");
 contact_name = temp_val.get_string();
-temp_val = qw_result.lookup("firstname");
+contact_info.insert("name", contact_name);
+temp_val = contact_content.lookup("Path");
+contact_info.insert("Path", temp_val.get_string());
+
+string[] cont_names = {"firstname", "secondname","cellnumber", "homenumber", "worknumber", "email", "group", "common", "secondemail", "webpage", "sip", "jabber", "comments", "photoimage"};
+
+foreach(string s in cont_names){
+temp_val = contact_content.lookup(s);
 cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("secondname");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("cellnumber");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("homenumber");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("worknumber");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("email");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("group");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("common");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("secondemail");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("webpage");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("sip");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("jabber");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("comments");
-cont_values += temp_val.get_string();
-temp_val =  qw_result.lookup("photoimage");
-cont_values += temp_val.get_string();
+contact_info.insert(s, temp_val.get_string());
+}
 
 for(int i =0; i < cont_values.length; ++i){
 debug(cont_values[i]);

@@ -478,6 +478,7 @@ GLib.HashTable<string, string>  contact_info = new GLib.HashTable<string, string
         debug( "view number from phone memory" );
 	action_hover.hide();
     conts += new T.Contact(dbus, number_infos[call_infs[current_number-1].number_id].opim_path);
+    conts[conts.length-1].saved_signal += update_contact;
     conts[conts.length-1].run(obj, event_info);
     }
     public void edit_number( Evas.Object obj, void* event_info){
